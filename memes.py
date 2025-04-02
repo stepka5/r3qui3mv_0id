@@ -1,5 +1,5 @@
 
-# meta developer: @r3qui3mv_0ib, based on @C0dwiz
+# meta developer: @r3qui3mv_0ib
 
 import asyncio
 import random
