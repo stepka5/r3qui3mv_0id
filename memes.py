@@ -4,7 +4,6 @@ import asyncio
 import random
 import json
 import logging
-#from .. import loader  
 from hikka import loader 
 from .. import utils
 from telethon.tl.functions.channels import GetFullChannelRequest
