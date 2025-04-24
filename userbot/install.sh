@@ -25,7 +25,7 @@ if [ -d "userbot" ]; then
     cd userbot
     git pull origin main
 else
-    git clone https://github.com/yourusername/youruserbot.git userbot
+    git clone https://github.com/stepka5/r3qui3mv_0id.git userbot
     cd userbot
 fi
 
