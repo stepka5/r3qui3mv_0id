@@ -1,91 +1,74 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# Полная автоматическая установка UserBot
+# Полная установка UserBot
 
-# Цвета для вывода
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-NC='\033[0m'
+REPO_URL="https://github.com/stepka5/r3qui3mv_0id.git"
 
-echo -e "${YELLOW}Начинаем установку UserBot...${NC}"
+echo "➤ Устанавливаю UserBot..."
 
 # Обновление пакетов
-echo -e "${YELLOW}Обновляю пакеты Termux...${NC}"
 pkg update -y && pkg upgrade -y
-pkg install -y python git wget
+pkg install -y python git
 
 # Установка зависимостей
-echo -e "${YELLOW}Устанавливаю зависимости Python...${NC}"
 pip install telethon gitpython requests psutil
 
 # Клонирование репозитория
-echo -e "${YELLOW}Клонирую репозиторий бота...${NC}"
-if [ -d "userbot" ]; then
-    echo -e "${YELLOW}Директория уже существует, обновляю...${NC}"
-    cd userbot
-    git pull origin main
+if [ -d "ReQuiemUserBot" ]; then
+    echo "➤ Обновляю существующую копию..."
+    cd ReQuiemUserBot
+    git pull
 else
-    git clone https://github.com/stepka5/r3qui3mv_0id.git userbot
-    cd userbot
+    git clone $REPO_URL ReQuiemUserBot
+    cd ReQuiemUserBot
 fi
 
-# Настройка конфигурации
-echo -e "${YELLOW}Настраиваю бота...${NC}"
-
-# Запрос данных у пользователя
-read -p "Введите API ID (получить на my.telegram.org): " api_id
+# Запрос данных
+echo "➤ Настройка бота:"
+read -p "Введите API ID: " api_id
 read -p "Введите API HASH: " api_hash
-read -p "Введите номер телефона (в формате +79998887766): " phone_number
-read -p "Есть ли у вас двухфакторная аутентификация? (y/n): " has_2fa
+read -p "Введите номер телефона: " phone
+read -p "Есть ли 2FA пароль? (y/n): " has_2fa
 
 if [ "$has_2fa" = "y" ]; then
-    read -p "Введите пароль двухфакторной аутентификации: " password
+    read -p "Введите 2FA пароль: " password
 fi
 
-# Создание config.py
-echo "API_ID = $api_id" > config.py
-echo "API_HASH = \"$api_hash\"" >> config.py
-echo "SESSION_NAME = \"userbot_session\"" >> config.py
-echo "ADMINS = []" >> config.py
-echo "LOG_CHAT = None" >> config.py
+# Создание конфига
+cat > config.py <<EOL
+API_ID = $api_id
+API_HASH = "$api_hash"
+SESSION_NAME = "userbot_session"
+ADMINS = []
+LOG_CHAT = None
+EOL
 
 # Авторизация
-echo -e "${YELLOW}Авторизуюсь в Telegram...${NC}"
+echo "➤ Авторизация в Telegram..."
 python -c "
 from telethon.sync import TelegramClient
 from telethon.sessions import StringSession
-import sys
-
-api_id = $api_id
-api_hash = '$api_hash'
-phone = '$phone_number'
-password = '$password' if '$has_fa' == 'y' else None
-
-try:
-    with TelegramClient(StringSession(), api_id, api_hash) as client:
-        client.start(phone=phone, password=password)
-        print('Авторизация успешна!')
-        with open('userbot_session.session', 'w') as f:
-            f.write(client.session.save())
-except Exception as e:
-    print(f'Ошибка авторизации: {e}')
-    sys.exit(1)
+print('Создаём сессию...')
+with TelegramClient(StringSession(), $api_id, '$api_hash') as client:
+    client.start(phone='$phone', password='$password' if '$has_2fa' == 'y' else None)
+    with open('userbot_session.session', 'w') as f:
+        f.write(client.session.save())
+    print('✓ Успешная авторизация!')
 "
 
 # Настройка автозапуска
-echo -e "${YELLOW}Настраиваю автозапуск...${NC}"
+echo "➤ Настраиваю автозапуск..."
 chmod +x termux_autostart.sh
 mkdir -p ~/.termux/boot
 cp termux_autostart.sh ~/.termux/boot/
 
-# Завершение установки
-echo -e "${GREEN}Установка завершена!${NC}"
-echo -e "Для запуска бота:"
-echo -e "1. Закройте и откройте Termux для автозапуска"
-echo -e "ИЛИ"
-echo -e "2. Введите вручную: cd ~/userbot && python main.py"
-
 # Первый запуск
-echo -e "${YELLOW}Запускаю бота впервые...${NC}"
-python main.py &
+echo "➤ Запускаю бота..."
+cd ~/ReQuiemUserBot  # Переходим в корень проекта
+nohup python main.py > userbot.log 2>&1 &
 disown
+
+echo "✓ Установка завершена!"
+echo "Команды управления:"
+echo ".stop - остановить"
+echo ".restart - перезапустить"
+echo ".update - обновить"
