@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # Скрипт автозапуска UserBot
 
-cd ~/userbot
+cd ~/userbot/userbot
 
 # Проверка зависимостей
 if ! [ -x "$(command -v python)" ]; then
