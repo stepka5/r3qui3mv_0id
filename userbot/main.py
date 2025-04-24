@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 # Константы
 REQUIRED_CHANNEL = "r3qui3mv_0ib"
-REPO_URL = "https://github.com/yourusername/youruserbot.git"
+REPO_URL = "https://github.com/stepka5/r3qui3mv_0id.git"
 
 class UserBot:
     def __init__(self):
